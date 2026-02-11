@@ -1,0 +1,86 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Defines possible card rarities.
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  SUPER_RARE
+  EPIC
+  LEGENDARY
+  LEGENDARY_ALT
+}
+
+// Represents a collection of cards (e.g., a pack type).
+model Set {
+  id         String @id @default(uuid())
+  name       String @unique
+  image      String // URL to the pack image.
+  totalCards Int    @default(0) // Will be updated by application logic.
+  cards      Card[] // Relation to Card model.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Represents an individual trading card.
+model Card {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String?
+  image       String // URL to the card artwork.
+  rarity      Rarity
+
+  setId String // Foreign key to the Set model.
+  set   Set    @relation(fields: [setId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // For distinct card counting in stats.
+  collections Collection[]
+}
+
+// Represents a Twitch viewer.
+model Viewer {
+  id         String @id @default(uuid())
+  twitchId   String @unique // Unique identifier from Twitch.
+  username   String
+  collection Collection[] // Relation to Collection model.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Represents a viewer's ownership of a specific card.
+model Collection {
+  id        String @id @default(uuid())
+  viewerId  String
+  viewer    Viewer @relation(fields: [viewerId], references: [id])
+  cardId    String
+  card      Card   @relation(fields: [cardId], references: [id])
+  quantity  Int    @default(1) // Number of copies of this specific card the viewer owns.
+
+  // Ensures a viewer can only have one entry per card in their collection.
+  @@unique([viewerId, cardId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Stores configurable drop rates for each rarity.
+model DropRate {
+  id     String  @id @default(uuid())
+  rarity Rarity  @unique
+  rate   Float   // Probability (e.g., 0.05 for 5%). Sum of all rates should ideally be 1.0.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
