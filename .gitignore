@@ -1,0 +1,41 @@
+# Node.js
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment
+.env
+.env.development
+.env.test
+.env.production
+.env.local
+.env.*.local
+.env.*
+
+# Editor/IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+*.env.docker
+
+# Prisma
+/backend/prisma/migrations/*.sql
+!/backend/prisma/migrations/migration_lock.toml # Keep lock file
+/backend/prisma/dev.db
+
+# Misc
+.cache/
+.pnp/
+.pnp.cjs
+.pnp.loader.cjs
+.eslintcache
